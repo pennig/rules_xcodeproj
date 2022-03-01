@@ -39,7 +39,11 @@ extension Target {
             swiftmodules: swiftmodules,
             inputs: inputs,
             links: links,
-            dependencies: dependencies
+            dependencies: dependencies,
+            outputs: Outputs(
+                dsyms: nil,
+                swiftModule: nil
+            )
         )
     }
 }

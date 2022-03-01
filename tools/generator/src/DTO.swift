@@ -27,6 +27,7 @@ struct Target: Equatable, Decodable {
     var inputs: Inputs
     var links: Set<Path>
     var dependencies: Set<TargetID>
+    let outputs: Outputs
 }
 
 struct Product: Equatable, Decodable {
@@ -40,4 +41,16 @@ struct Platform: Equatable, Decodable {
     let arch: String
     let minimumOsVersion: String
     let environment: String?
+}
+
+struct Outputs: Equatable, Decodable {
+    let dsyms: [String]?
+    let swiftModule: SwiftModule?
+
+    struct SwiftModule: Equatable, Decodable {
+        let name: String
+        let swiftdoc: String?
+        let swiftmodule: String?
+        let swiftsourceinfo: String?
+    }
 }
