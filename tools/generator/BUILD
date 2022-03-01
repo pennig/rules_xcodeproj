@@ -1,4 +1,8 @@
 load(
+    "@build_bazel_apple_support//rules:universal_binary.bzl",
+    "universal_binary",
+)
+load(
     "@build_bazel_rules_swift//swift:swift.bzl",
     "swift_binary",
     "swift_library",
@@ -45,6 +49,12 @@ swift_test(
     deps = [
         ":tests.library",
     ],
+)
+
+universal_binary(
+    name = "universal_generator",
+    binary = ":generator",
+    visibility = ["//visibility:public"],
 )
 
 xcodeproj(
