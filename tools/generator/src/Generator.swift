@@ -111,6 +111,8 @@ Was unable to merge "\(targets[invalidMerge.source]!.label) \
             pbxTargets
         )
 
+        // TODO: Schemes
+
          let xcodeProj = environment.createXcodeProj(pbxProj)
          try environment.writeXcodeProj(
             xcodeProj,
