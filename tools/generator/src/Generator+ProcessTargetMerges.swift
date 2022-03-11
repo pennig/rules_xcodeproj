@@ -42,7 +42,10 @@ extension Generator {
 """)
             }
 
-            guard !requiredLinks.contains(merging.product.path) else {
+            if
+                let productPath = merging.product.path,
+                requiredLinks.contains(productPath)
+            {
                 validTargetMerges.removeValue(forKey: source)
                 invalidMerges.append(.init(
                     source: source,
@@ -89,7 +92,9 @@ exist
                 merged.inputs = merging.inputs
 
                 // Update links
-                merged.links.remove(merging.product.path)
+                if let productPath = merging.product.path {
+                    merged.links.remove(productPath)
+                }
 
                 // Update dependencies
                 merged.dependencies.formUnion(merging.dependencies)

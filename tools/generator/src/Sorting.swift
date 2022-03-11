@@ -80,9 +80,9 @@ private struct PBXFileReferenceByTargetID {
     let targetID: TargetID
     let file: PBXFileReference
 
-    init(_ element: (key: TargetID, value: PBXFileReference)) {
-        targetID = element.key
-        file = element.value
+    init(targetID: TargetID, file: PBXFileReference) {
+        self.targetID = targetID
+        self.file = file
     }
 
     var sortString: String {
@@ -90,12 +90,17 @@ private struct PBXFileReferenceByTargetID {
     }
 }
 
-extension Dictionary where Key == TargetID, Value: PBXFileReference {
+extension Dictionary where Key == TargetID, Value == PBXFileReference? {
     func sortedLocalizedStandard() -> [PBXFileReference] {
         let sort = [PBXFileReferenceByTargetID]
             .sortByLocalizedStandard(\.sortString)
         return self
-            .map(PBXFileReferenceByTargetID.init)
+            .compactMap { key, value in
+                guard let value = value else {
+                    return nil
+                }
+                return PBXFileReferenceByTargetID(targetID: key, file: value)
+            }
             .sorted(by: sort)
             .map(\.file)
     }

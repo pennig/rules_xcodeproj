@@ -8,16 +8,24 @@ extension Generator {
     ) -> (Products, PBXGroup) {
         var products = Products()
         for (id, target) in targets {
+            guard let productPath = target.product.path else {
+                products.add(
+                    product: nil,
+                    for: .init(target: id, path: nil)
+                )
+                continue
+            }
+
             let product = PBXFileReference(
                 sourceTree: .buildProductsDir,
                 explicitFileType: target.product.type.fileType,
-                path: target.product.path.lastComponent,
+                path: productPath.lastComponent,
                 includeInIndex: false
             )
             pbxProj.add(object: product)
             products.add(
                 product: product,
-                for: .init(target: id, path: target.product.path)
+                for: .init(target: id, path: productPath)
             )
         }
 
@@ -36,26 +44,30 @@ extension Generator {
 struct Products: Equatable {
     struct ProductKeys: Equatable, Hashable {
         let target: TargetID
-        let path: Path
+        let path: Path?
     }
 
-    private(set) var byTarget: [TargetID: PBXFileReference] = [:]
+    private(set) var byTarget: [TargetID: PBXFileReference?] = [:]
     private(set) var byPath: [Path: PBXFileReference] = [:]
 
     mutating func add(
-        product: PBXFileReference,
+        product: PBXFileReference?,
         for keys: ProductKeys
     ) {
         byTarget[keys.target] = product
-        byPath[keys.path] = product
+        if let path = keys.path, let product = product {
+            byPath[path] = product
+        }
     }
 }
 
 extension Products {
-    init(_ products: [ProductKeys: PBXFileReference]) {
+    init(_ products: [ProductKeys: PBXFileReference?]) {
         for (keys, product) in products {
             byTarget[keys.target] = product
-            byPath[keys.path] = product
+            if let path = keys.path, let product = product {
+                byPath[path] = product
+            }
         }
     }
 }

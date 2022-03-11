@@ -33,7 +33,7 @@ struct Target: Equatable, Decodable {
 struct Product: Equatable, Decodable {
     let type: PBXProductType
     let name: String
-    let path: Path
+    let path: Path?
 }
 
 struct Platform: Equatable, Decodable {

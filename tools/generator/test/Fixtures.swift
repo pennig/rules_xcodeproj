@@ -491,7 +491,7 @@ a/b/module.modulemap
                 includeInIndex: false
             ),
         ])
-        products.byTarget.values.forEach { pbxProj.add(object: $0) }
+        products.byPath.values.forEach { pbxProj.add(object: $0) }
 
         if let group = group {
             // The order products are added to a group matters for uuid fixing
@@ -658,63 +658,63 @@ a/b/module.modulemap
                 name: disambiguatedTargets["A 1"]!.name,
                 buildPhases: buildPhases["A 1"] ?? [],
                 productName: "a",
-                product: products.byTarget["A 1"],
+                product: products.byTarget["A 1"] ?? nil,
                 productType: .staticLibrary
             ),
             "A 2": PBXNativeTarget(
                 name: disambiguatedTargets["A 2"]!.name,
                 buildPhases: buildPhases["A 2"] ?? [],
                 productName: "A",
-                product: products.byTarget["A 2"],
+                product: products.byTarget["A 2"] ?? nil,
                 productType: .application
             ),
             "B 1": PBXNativeTarget(
                 name: disambiguatedTargets["B 1"]!.name,
                 buildPhases: buildPhases["B 1"] ?? [],
                 productName: "b",
-                product: products.byTarget["B 1"],
+                product: products.byTarget["B 1"] ?? nil,
                 productType: .staticFramework
             ),
             "B 2": PBXNativeTarget(
                 name: disambiguatedTargets["B 2"]!.name,
                 buildPhases: buildPhases["B 2"] ?? [],
                 productName: "B",
-                product: products.byTarget["B 2"],
+                product: products.byTarget["B 2"] ?? nil,
                 productType: .unitTestBundle
             ),
             "B 3": PBXNativeTarget(
                 name: disambiguatedTargets["B 3"]!.name,
                 buildPhases: buildPhases["B 3"] ?? [],
                 productName: "B3",
-                product: products.byTarget["B 3"],
+                product: products.byTarget["B 3"] ?? nil,
                 productType: .uiTestBundle
             ),
             "C 1": PBXNativeTarget(
                 name: disambiguatedTargets["C 1"]!.name,
                 buildPhases: buildPhases["C 1"] ?? [],
                 productName: "c",
-                product: products.byTarget["C 1"],
+                product: products.byTarget["C 1"] ?? nil,
                 productType: .staticLibrary
             ),
             "C 2": PBXNativeTarget(
                 name: disambiguatedTargets["C 2"]!.name,
                 buildPhases: buildPhases["C 2"] ?? [],
                 productName: "d",
-                product: products.byTarget["C 2"],
+                product: products.byTarget["C 2"] ?? nil,
                 productType: .commandLineTool
             ),
             "E1": PBXNativeTarget(
                 name: disambiguatedTargets["E1"]!.name,
                 buildPhases: buildPhases["E1"] ?? [],
                 productName: "E1",
-                product: products.byTarget["E1"],
+                product: products.byTarget["E1"] ?? nil,
                 productType: .staticLibrary
             ),
             "E2": PBXNativeTarget(
                 name: disambiguatedTargets["E2"]!.name,
                 buildPhases: buildPhases["E2"] ?? [],
                 productName: "E2",
-                product: products.byTarget["E2"],
+                product: products.byTarget["E2"] ?? nil,
                 productType: .staticLibrary
             ),
         ]
