@@ -106,6 +106,8 @@ def _get_unprocessed_compiler_opts(*, ctx, target):
         variables = variables,
     )
 
+    # TODO: Find a way to get module_name out of `variables`, instead of computing it ourselves and possibly messing it up?
+
     # TODO: Handle perfileopts somehow?
 
     if SwiftInfo in target:
