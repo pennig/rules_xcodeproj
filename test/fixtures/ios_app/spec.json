@@ -110,6 +110,7 @@
                 "//examples/ios_app/Example:Example.library ios-x86_64-min15.0-applebin_ios-ios_x86_64-fastbuild-ST-d3e756bfe7fd"
             ],
             "inputs": {},
+            "is_swift": false,
             "label": "//examples/ios_app/Example:Example",
             "links": [
                 "bazel-out/ios-x86_64-min15.0-applebin_ios-ios_x86_64-fastbuild-ST-d3e756bfe7fd/bin/examples/ios_app/Utils/libUtils.a",
@@ -194,6 +195,7 @@
                     "examples/ios_app/Example/ExampleApp.swift"
                 ]
             },
+            "is_swift": true,
             "label": "//examples/ios_app/Example:Example.library",
             "links": [],
             "modulemaps": [
@@ -283,6 +285,7 @@
                 "//examples/ios_app/Example:Example applebin_ios-ios_x86_64-fastbuild-ST-d3e756bfe7fd"
             ],
             "inputs": {},
+            "is_swift": false,
             "label": "//examples/ios_app/ExampleTests:ExampleTests.__internal__.__test_bundle",
             "links": [
                 "bazel-out/ios-x86_64-min15.0-applebin_ios-ios_x86_64-fastbuild-ST-d3e756bfe7fd/bin/examples/ios_app/TestingUtils/libTestingUtils.a",
@@ -369,6 +372,7 @@
                     "examples/ios_app/ExampleTests/ExampleTests.swift"
                 ]
             },
+            "is_swift": true,
             "label": "//examples/ios_app/ExampleTests:ExampleTests.library",
             "links": [],
             "modulemaps": [
@@ -467,6 +471,7 @@
                 "//examples/ios_app/Example:Example applebin_ios-ios_x86_64-fastbuild-ST-d3e756bfe7fd"
             ],
             "inputs": {},
+            "is_swift": false,
             "label": "//examples/ios_app/ExampleUITests:ExampleUITests.__internal__.__test_bundle",
             "links": [
                 "bazel-out/ios-x86_64-min15.0-applebin_ios-ios_x86_64-fastbuild-ST-d3e756bfe7fd/bin/examples/ios_app/ExampleUITests/libExampleUITests.library.a"
@@ -549,6 +554,7 @@
                     "examples/ios_app/ExampleUITests/ExampleUITestsLaunchTests.swift"
                 ]
             },
+            "is_swift": true,
             "label": "//examples/ios_app/ExampleUITests:ExampleUITests.library",
             "links": [],
             "modulemaps": [],
@@ -636,6 +642,7 @@
                     }
                 ]
             },
+            "is_swift": true,
             "label": "//examples/ios_app/TestingUtils:TestingUtils",
             "links": [],
             "modulemaps": [],
@@ -722,6 +729,7 @@
                     "examples/ios_app/Utils/Foo.m"
                 ]
             },
+            "is_swift": false,
             "label": "//examples/ios_app/Utils:Utils",
             "links": [],
             "modulemaps": [],

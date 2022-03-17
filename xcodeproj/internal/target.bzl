@@ -349,6 +349,7 @@ def _xcode_target(
         configuration,
         platform,
         product,
+        is_swift,
         test_host,
         build_settings,
         search_paths,
@@ -371,6 +372,7 @@ def _xcode_target(
         configuration: The configuration of the `Target`.
         platform: The value returned from `process_platform()`.
         product: The value returned from `_process_product()`.
+        is_swift: Whether the target compiles Swift code.
         test_host: The `id` of the target that is the test host for this
             target, or `None` if this target does not have a test host.
         build_settings: A `dict` of Xcode build settings for the target.
@@ -401,6 +403,7 @@ def _xcode_target(
         configuration = configuration,
         platform = platform,
         product = product,
+        is_swift = is_swift,
         test_host = test_host,
         build_settings = build_settings,
         search_paths = search_paths,
@@ -663,6 +666,7 @@ The xcodeproj rule requires {} rules to have a single library dep. {} has {}.\
                 linker_inputs = linker_inputs,
                 build_settings = build_settings,
             ),
+            is_swift = is_swift,
             test_host = (
                 test_host_target_info.target.id if test_host_target_info else None
             ),
@@ -776,6 +780,7 @@ def _process_library_target(*, ctx, target, transitive_infos):
                 linker_inputs = linker_inputs,
                 build_settings = build_settings,
             ),
+            is_swift = is_swift,
             test_host = None,
             build_settings = build_settings,
             search_paths = search_paths,

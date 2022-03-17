@@ -44,6 +44,7 @@ final class TargetMergingTests: XCTestCase {
         expectedTargets.removeValue(forKey: "B 1")
         expectedTargets["A 2"] = Target.mock(
             product: targets["A 2"]!.product,
+            isSwift: targets["A 1"]!.isSwift,
             buildSettings: [
                 // Inherited "A 1"s `PRODUCT_MODULE_NAME`
                 "PRODUCT_MODULE_NAME": .string("A"),
@@ -62,6 +63,7 @@ final class TargetMergingTests: XCTestCase {
         )
         expectedTargets["B 2"] = Target.mock(
             product: targets["B 2"]!.product,
+            isSwift: targets["A 2"]!.isSwift,
             testHost: "A 2",
             swiftmodules: targets["B 1"]!.swiftmodules,
             inputs: targets["B 1"]!.inputs,
@@ -72,6 +74,7 @@ final class TargetMergingTests: XCTestCase {
         )
         expectedTargets["B 3"] = Target.mock(
             product: targets["B 3"]!.product,
+            isSwift: targets["B 1"]!.isSwift,
             testHost: "A 2",
             swiftmodules: targets["B 1"]!.swiftmodules,
             inputs: targets["B 1"]!.inputs,
@@ -105,6 +108,7 @@ final class TargetMergingTests: XCTestCase {
         // "PRODUCT_MODULE_NAME", which breaks indexing
         targets["B 2"] = Target.mock(
             product: targets["B 2"]!.product,
+            isSwift: targets["B 2"]!.isSwift,
             inputs: targets["B 2"]!.inputs,
             links: ["z/A.a", "a/b.framework"],
             dependencies: targets["B 2"]!.dependencies
@@ -119,6 +123,7 @@ final class TargetMergingTests: XCTestCase {
         expectedTargets.removeValue(forKey: "B 1")
         expectedTargets["B 2"] = Target.mock(
             product: targets["B 2"]!.product,
+            isSwift: targets["B 1"]!.isSwift,
             swiftmodules: targets["B 1"]!.swiftmodules,
             inputs: targets["B 1"]!.inputs,
             // Removed "B 1"'s product
@@ -128,6 +133,7 @@ final class TargetMergingTests: XCTestCase {
         )
         expectedTargets["B 3"] = Target.mock(
             product: targets["B 3"]!.product,
+            isSwift: targets["B 1"]!.isSwift,
             testHost: "A 2",
             swiftmodules: targets["B 1"]!.swiftmodules,
             inputs: targets["B 1"]!.inputs,
