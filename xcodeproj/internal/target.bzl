@@ -353,6 +353,7 @@ def _xcode_target(
         build_settings,
         search_paths,
         modulemaps,
+        swiftmodules,
         inputs_info,
         links,
         dependencies,
@@ -375,6 +376,7 @@ def _xcode_target(
         build_settings: A `dict` of Xcode build settings for the target.
         search_paths: The value returned from `_process_search_paths()`.
         modulemaps: The value returned from `_process_modulemaps()`.
+        swiftmodules: The value returned from `_process_swiftmodules()`.
         inputs_info: An `InputFilesInfo` provider.
         links: A `list` of file paths for libraries that the target links
             against.
@@ -403,6 +405,7 @@ def _xcode_target(
         build_settings = build_settings,
         search_paths = search_paths,
         modulemaps = modulemaps.file_paths,
+        swiftmodules = swiftmodules,
         inputs = _process_inputs(inputs_info),
         links = links,
         dependencies = dependencies,
@@ -615,6 +618,9 @@ The xcodeproj rule requires {} rules to have a single library dep. {} has {}.\
     modulemaps = _process_modulemaps(
         swift_info = target[SwiftInfo] if SwiftInfo in target else None,
     )
+    is_swift = SwiftInfo in target
+    swift_info = target[SwiftInfo] if is_swift else None
+    modulemaps = _process_modulemaps(swift_info = swift_info)
     search_paths = _process_search_paths(
         bin_dir_path = ctx.bin_dir.path,
         includes = getattr(ctx.rule.attr, "includes", []),
@@ -624,7 +630,7 @@ The xcodeproj rule requires {} rules to have a single library dep. {} has {}.\
 
     return _processed_target(
         defines = _process_defines(
-            is_swift = SwiftInfo in target,
+            is_swift = is_swift,
             defines = getattr(ctx.rule.attr, "defines", []),
             local_defines = getattr(ctx.rule.attr, "local_defines", []),
             transitive_infos = transitive_infos,
@@ -657,10 +663,13 @@ The xcodeproj rule requires {} rules to have a single library dep. {} has {}.\
                 linker_inputs = linker_inputs,
                 build_settings = build_settings,
             ),
-            test_host = test_host_target_info.target.id if test_host_target_info else None,
+            test_host = (
+                test_host_target_info.target.id if test_host_target_info else None
+            ),
             build_settings = build_settings,
             search_paths = search_paths,
             modulemaps = modulemaps,
+            swiftmodules = _process_swiftmodules(swift_info = swift_info),
             inputs_info = inputs_info,
             links = links,
             dependencies = dependencies,
@@ -722,9 +731,9 @@ def _process_library_target(*, ctx, target, transitive_infos):
     )
 
     inputs_info = target[InputFilesInfo]
-    modulemaps = _process_modulemaps(
-        swift_info = target[SwiftInfo] if SwiftInfo in target else None,
-    )
+    is_swift = SwiftInfo in target
+    swift_info = target[SwiftInfo] if is_swift else None
+    modulemaps = _process_modulemaps(swift_info = swift_info)
     search_paths = _process_search_paths(
         bin_dir_path = ctx.bin_dir.path,
         includes = getattr(ctx.rule.attr, "includes", []),
@@ -757,6 +766,8 @@ def _process_library_target(*, ctx, target, transitive_infos):
             id = id,
             name = module_name,
             label = target.label,
+            configuration = configuration,
+            platform = platform,
             product = _process_product(
                 target = target,
                 product_name = product_name,
@@ -765,12 +776,11 @@ def _process_library_target(*, ctx, target, transitive_infos):
                 linker_inputs = linker_inputs,
                 build_settings = build_settings,
             ),
-            configuration = configuration,
-            platform = platform,
+            test_host = None,
             build_settings = build_settings,
             search_paths = search_paths,
             modulemaps = modulemaps,
-            test_host = None,
+            swiftmodules = _process_swiftmodules(swift_info = swift_info),
             inputs_info = inputs_info,
             links = [],
             dependencies = dependencies,
@@ -1111,8 +1121,11 @@ def _process_modulemaps(*, swift_info):
     modulemap_file_paths = []
     modulemap_files = []
     for module in swift_info.transitive_modules.to_list():
-        module_map = module.clang.module_map
-        if not module.clang or not module_map:
+        clang_module = module.clang
+        if not clang_module:
+            continue
+        module_map = clang_module.module_map
+        if not module_map:
             continue
 
         if type(module_map) == "File":
@@ -1129,6 +1142,23 @@ def _process_modulemaps(*, swift_info):
         file_paths = {x: None for x in modulemap_file_paths}.keys(),
         files = {x: None for x in modulemap_files}.keys(),
     )
+
+def _process_swiftmodules(*, swift_info):
+    if not swift_info:
+        return []
+
+    direct_modules = swift_info.direct_modules
+
+    file_paths = []
+    for module in swift_info.transitive_modules.to_list():
+        if module in direct_modules:
+            continue
+        swift_module = module.swift
+        if not swift_module:
+            continue
+        file_paths.append(file_path(swift_module.swiftmodule))
+
+    return file_paths
 
 def _process_target(*, ctx, target, transitive_infos):
     """Creates the target portion of an `XcodeProjInfo` for a `Target`.

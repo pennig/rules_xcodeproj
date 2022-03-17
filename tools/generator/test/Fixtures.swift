@@ -42,6 +42,7 @@ enum Fixtures {
                 "T": .string("43"),
                 "Z": .string("0")
             ],
+            swiftmodules: [.generated("x/y.swiftmodule")],
             links: ["a/c.a", "z/A.a"],
             dependencies: ["C 1", "A 1"]
         ),
@@ -51,6 +52,7 @@ enum Fixtures {
                 name: "b",
                 path: "a/b.framework"
             ),
+            swiftmodules: [.generated("x/y.swiftmodule")],
             inputs: .init(srcs: ["z.h", "z.mm"], hdrs: ["d.h"]),
             dependencies: ["A 1"]
         ),
