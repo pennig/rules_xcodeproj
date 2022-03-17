@@ -110,7 +110,6 @@ enum Fixtures {
         for (id, target) in targets {
             disambiguatedTargets[id] = DisambiguatedTarget(
                 name: "\(id.rawValue) (Distinguished)",
-                nameBuildSetting: Data(id.rawValue.utf8).base64EncodedString(),
                 target: target
             )
         }
@@ -805,7 +804,7 @@ PATH="${PATH//\/usr\/local\/bin//opt/homebrew/bin:/usr/local/bin}" \
         in pbxProj: PBXProj,
         targets: [TargetID: Target]
     ) -> [TargetID: PBXNativeTarget] {
-        let (pbxTargets, distinguished) = Fixtures.pbxTargets(
+        let (pbxTargets, _) = Fixtures.pbxTargets(
             in: pbxProj,
             targets: targets
         )
@@ -840,7 +839,6 @@ PATH="${PATH//\/usr\/local\/bin//opt/homebrew/bin:/usr/local/bin}" \
         let buildSettings: [TargetID: [String: Any]] = [
             "A 1": targets["A 1"]!.buildSettings.asDictionary.merging([
                 "BAZEL_PACKAGE_BIN_DIR": "bazel-out/a1b2c/bin/A 1",
-                "TARGET_NAME": distinguished["A 1"]!.nameBuildSetting,
             ]) { $1 },
             "A 2": targets["A 2"]!.buildSettings.asDictionary.merging([
                 "BAZEL_PACKAGE_BIN_DIR": "bazel-out/a1b2c/bin/A 2",
@@ -851,12 +849,10 @@ PATH="${PATH//\/usr\/local\/bin//opt/homebrew/bin:/usr/local/bin}" \
 """#,
                 ],
                 "SWIFT_INCLUDE_PATHS": "$(BUILD_DIR)/bazel-out/x",
-                "TARGET_NAME": distinguished["A 2"]!.nameBuildSetting,
             ]) { $1 },
             "B 1": targets["B 1"]!.buildSettings.asDictionary.merging([
                 "BAZEL_PACKAGE_BIN_DIR": "bazel-out/a1b2c/bin/B 1",
                 "SWIFT_INCLUDE_PATHS": "$(BUILD_DIR)/bazel-out/x",
-                "TARGET_NAME": distinguished["B 1"]!.nameBuildSetting,
             ]) { $1 },
             "B 2": targets["B 2"]!.buildSettings.asDictionary.merging([
                 "BAZEL_PACKAGE_BIN_DIR": "bazel-out/a1b2c/bin/B 2",
@@ -870,7 +866,6 @@ PATH="${PATH//\/usr\/local\/bin//opt/homebrew/bin:/usr/local/bin}" \
                 "TARGET_BUILD_DIR": """
 $(BUILD_DIR)/bazel-out/a1b2c/bin/A 2$(TARGET_BUILD_SUBPATH)
 """,
-                "TARGET_NAME": distinguished["B 2"]!.nameBuildSetting,
                 "TEST_HOST": "$(BUILD_DIR)/bazel-out/a1b2c/bin/A 2/A.app/A",
             ]) { $1 },
             "B 3": targets["B 3"]!.buildSettings.asDictionary.merging([
@@ -881,7 +876,6 @@ $(BUILD_DIR)/bazel-out/a1b2c/bin/A 2$(TARGET_BUILD_SUBPATH)
 "out/p.xcodeproj/rules_xcp/targets/a1b2c/B 3/B3.LinkFileList",$(BUILD_DIR)
 """#,
                 ],
-                "TARGET_NAME": distinguished["B 3"]!.nameBuildSetting,
                 "TEST_TARGET_NAME": pbxTargets["A 2"]!.name,
             ]) { $1 },
             "C 1": targets["C 1"]!.buildSettings.asDictionary.merging([
@@ -889,7 +883,6 @@ $(BUILD_DIR)/bazel-out/a1b2c/bin/A 2$(TARGET_BUILD_SUBPATH)
                 "OTHER_SWIFT_FLAGS": """
 -Xcc -fmodule-map-file=a/b/module.modulemap
 """,
-                "TARGET_NAME": distinguished["C 1"]!.nameBuildSetting,
             ]) { $1 },
             "C 2": targets["C 2"]!.buildSettings.asDictionary.merging([
                 "BAZEL_PACKAGE_BIN_DIR": "bazel-out/a1b2c/bin/C 2",
@@ -899,15 +892,12 @@ $(BUILD_DIR)/bazel-out/a1b2c/bin/A 2$(TARGET_BUILD_SUBPATH)
 "out/p.xcodeproj/rules_xcp/targets/a1b2c/C 2/d.LinkFileList",$(BUILD_DIR)
 """#,
                 ],
-                "TARGET_NAME": distinguished["C 2"]!.nameBuildSetting,
             ]) { $1 },
             "E1": targets["E1"]!.buildSettings.asDictionary.merging([
                 "BAZEL_PACKAGE_BIN_DIR": "bazel-out/a1b2c/bin/E1",
-                "TARGET_NAME": distinguished["E1"]!.nameBuildSetting,
             ]) { $1 },
             "E2": targets["E2"]!.buildSettings.asDictionary.merging([
                 "BAZEL_PACKAGE_BIN_DIR": "bazel-out/a1b2c/bin/E2",
-                "TARGET_NAME": distinguished["E2"]!.nameBuildSetting,
             ]) { $1 },
         ]
         for (id, buildSettings) in buildSettings {
