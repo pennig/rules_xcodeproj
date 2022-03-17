@@ -347,6 +347,7 @@ def _xcode_target(
         name,
         label,
         configuration,
+        bin_dir_path,
         platform,
         product,
         is_swift,
@@ -370,6 +371,7 @@ def _xcode_target(
             disambiguate them.
         label: The `Label` of the `Target`.
         configuration: The configuration of the `Target`.
+        bin_dir_path: `ctx.bin_dir.path`.
         platform: The value returned from `process_platform()`.
         product: The value returned from `_process_product()`.
         is_swift: Whether the target compiles Swift code.
@@ -401,6 +403,11 @@ def _xcode_target(
         name = name,
         label = str(label),
         configuration = configuration,
+        package_bin_dir = join_paths_ignoring_empty(
+            bin_dir_path,
+            label.workspace_root,
+            label.package,
+        ),
         platform = platform,
         product = product,
         is_swift = is_swift,
@@ -657,6 +664,7 @@ The xcodeproj rule requires {} rules to have a single library dep. {} has {}.\
             name = props.product_name,
             label = target.label,
             configuration = configuration,
+            bin_dir_path = ctx.bin_dir.path,
             platform = platform,
             product = _process_product(
                 target = target,
@@ -771,6 +779,7 @@ def _process_library_target(*, ctx, target, transitive_infos):
             name = module_name,
             label = target.label,
             configuration = configuration,
+            bin_dir_path = ctx.bin_dir.path,
             platform = platform,
             product = _process_product(
                 target = target,
