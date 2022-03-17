@@ -13,6 +13,14 @@ extension Path {
     private var isDocCArchive: Bool { self.extension == "docc" }
     private var isSceneKitAssets: Bool { self.extension == "scnassets" }
     private var isXCAssets: Bool { self.extension == "xcassets" }
+
+    /// Wraps the path in quotes if it needs it
+    var quotedString: String {
+        guard string.rangeOfCharacter(from: .whitespaces) != nil else {
+            return string
+        }
+        return #""\#(string)""#
+    }
 }
 
 // MARK: Decodable
