@@ -5,3 +5,6 @@ query --deleted_packages=examples/cc/external,examples/ios_app,examples/ios_app/
 
 # Import Shared settings
 import %workspace%/shared.bazelrc
+
+# Use a local.bazelrc if it exists.
+try-import %workspace%/local.bazelrc
