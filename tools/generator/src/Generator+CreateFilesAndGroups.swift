@@ -35,6 +35,7 @@ extension Generator {
             in pbxProj: PBXProj,
             filePath: FilePath,
             pathComponent: String,
+            isFolder: Bool,
             isLeaf: Bool
         ) -> (PBXFileElement, isNew: Bool) {
             if let element = elements[filePath] {
@@ -50,13 +51,23 @@ extension Generator {
                 )
                 return (group, true)
             } else {
+                let lastKnownFileType: String?
+                if isFolder {
+                    lastKnownFileType = "folder"
+                } else {
+                    lastKnownFileType = Path(pathComponent).lastKnownFileType
+                }
                 let file = PBXFileReference(
                     sourceTree: .group,
-                    lastKnownFileType: Path(pathComponent).lastKnownFileType,
+                    lastKnownFileType: lastKnownFileType,
                     path: pathComponent
                 )
                 pbxProj.add(object: file)
-                elements[filePath] = file
+
+                var actualFilePath = filePath
+                actualFilePath.isFolder = isFolder
+                elements[actualFilePath] = file
+
                 return (file, true)
             }
         }
@@ -136,7 +147,9 @@ extension Generator {
         var allInputPaths = extraFiles
         for target in targets.values {
             allInputPaths.formUnion(target.inputs.all)
-            if !target.inputs.containsSources {
+            if !target.inputs.containsSources
+                && target.product.type != .bundle
+            {
                 allInputPaths.insert(.internal(compileStubPath))
             }
         }
@@ -163,11 +176,14 @@ extension Generator {
             let components = fullFilePath.path.components
             for (offset, component) in components.enumerated() {
                 filePath = filePath + component
+                let isLeaf = offset == components.count - 1
+                let isFolder = isLeaf && fullFilePath.isFolder
                 let (element, isNew) = createElement(
                     in: pbxProj,
                     filePath: filePath,
                     pathComponent: component,
-                    isLeaf: offset == components.count - 1
+                    isFolder: isFolder,
+                    isLeaf: isLeaf
                 )
                 if isNew {
                     if let group = lastElement as? PBXGroup {

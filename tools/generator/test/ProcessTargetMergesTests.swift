@@ -58,11 +58,12 @@ final class TargetMergingTests: XCTestCase {
             frameworks: targets["A 2"]!.frameworks,
             modulemaps: targets["A 1"]!.modulemaps,
             swiftmodules: targets["A 1"]!.swiftmodules,
+            resourceBundleProducts: targets["A 2"]!.resourceBundleProducts,
             inputs: targets["A 1"]!.inputs,
             // Removed "A 1"'s product
             links: ["a/c.a"],
             // Inherited "A 1"'s dependencies and removed "A 1"
-            dependencies: ["C 1"]
+            dependencies: ["C 1", "R 1"]
         )
         expectedTargets["B 2"] = Target.mock(
             packageBinDir: targets["B 1"]!.packageBinDir,
@@ -72,6 +73,7 @@ final class TargetMergingTests: XCTestCase {
             frameworks: targets["B 2"]!.frameworks,
             modulemaps: targets["B 1"]!.modulemaps,
             swiftmodules: targets["B 1"]!.swiftmodules,
+            resourceBundleProducts: targets["B 2"]!.resourceBundleProducts,
             inputs: targets["B 1"]!.inputs,
             // Removed "A 1"'s and "B 1"'s product
             links: [],
@@ -86,6 +88,7 @@ final class TargetMergingTests: XCTestCase {
             frameworks: targets["B 3"]!.frameworks,
             modulemaps: targets["B 1"]!.modulemaps,
             swiftmodules: targets["B 1"]!.swiftmodules,
+            resourceBundleProducts: targets["B 3"]!.resourceBundleProducts,
             inputs: targets["B 1"]!.inputs,
             // Removed "B 1"'s product
             links: [],
@@ -121,6 +124,8 @@ final class TargetMergingTests: XCTestCase {
             isSwift: targets["B 2"]!.isSwift,
             frameworks: targets["B 2"]!.frameworks,
             modulemaps: targets["B 2"]!.modulemaps,
+            swiftmodules: targets["B 2"]!.swiftmodules,
+            resourceBundleProducts: targets["B 2"]!.resourceBundleProducts,
             inputs: targets["B 2"]!.inputs,
             links: ["z/A.a", "a/b.framework"],
             dependencies: targets["B 2"]!.dependencies
@@ -140,6 +145,7 @@ final class TargetMergingTests: XCTestCase {
             frameworks: targets["B 2"]!.frameworks,
             modulemaps: targets["B 1"]!.modulemaps,
             swiftmodules: targets["B 1"]!.swiftmodules,
+            resourceBundleProducts: targets["B 2"]!.resourceBundleProducts,
             inputs: targets["B 1"]!.inputs,
             // Removed "B 1"'s product
             links: ["z/A.a"],
@@ -154,6 +160,7 @@ final class TargetMergingTests: XCTestCase {
             frameworks: targets["B 3"]!.frameworks,
             modulemaps: targets["B 1"]!.modulemaps,
             swiftmodules: targets["B 1"]!.swiftmodules,
+            resourceBundleProducts: targets["B 3"]!.resourceBundleProducts,
             inputs: targets["B 1"]!.inputs,
             // Removed "B 1"'s product
             links: [],

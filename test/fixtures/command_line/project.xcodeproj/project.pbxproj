@@ -12,8 +12,6 @@
 		7C3CD0E0D0A59C7B68CC261C /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 97093D4A77C09BF21048172D /* main.m */; };
 		B2874FFD92695F0764CC4BC1 /* ExternalFramework.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FB5DCB76604D935AA813EEED /* ExternalFramework.framework */; };
 		C568755D4B2F420C240E3AA7 /* ExampleFramework.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE2C561FCEC62C6BDAAE72AB /* ExampleFramework.framework */; };
-		C9D028103FEED371BD7467F3 /* ExampleFramework.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = DE2C561FCEC62C6BDAAE72AB /* ExampleFramework.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		F2C649E1C0D0D50F97A5BC2B /* ExternalFramework.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = FB5DCB76604D935AA813EEED /* ExternalFramework.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -25,21 +23,6 @@
 			remoteInfo = lib_impl;
 		};
 /* End PBXContainerItemProxy section */
-
-/* Begin PBXCopyFilesBuildPhase section */
-		AA2C1B20314D2A6E12F4686C /* Embed Frameworks */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 10;
-			files = (
-				C9D028103FEED371BD7467F3 /* ExampleFramework.framework in Embed Frameworks */,
-				F2C649E1C0D0D50F97A5BC2B /* ExternalFramework.framework in Embed Frameworks */,
-			);
-			name = "Embed Frameworks";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		1704EC3DF20D136B9D2B8C0D /* liblib_impl.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = liblib_impl.a; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -184,7 +167,6 @@
 			buildPhases = (
 				71A19865030B483AA44F971E /* Sources */,
 				A6EC893DB5C33B52A57824D8 /* Frameworks */,
-				AA2C1B20314D2A6E12F4686C /* Embed Frameworks */,
 			);
 			buildRules = (
 			);

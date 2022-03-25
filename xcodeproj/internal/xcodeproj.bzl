@@ -2,7 +2,7 @@
 
 load("@bazel_skylib//lib:paths.bzl", "paths")
 load("@bazel_skylib//rules:common_settings.bzl", "BuildSettingInfo")
-load(":files.bzl", "file_path")
+load(":files.bzl", "file_path", "file_path_to_dto")
 load(":flattened_key_values.bzl", "flattened_key_values")
 load(":input_files.bzl", "input_files")
 load(":providers.bzl", "XcodeProjInfo", "XcodeProjOutputInfo")
@@ -67,7 +67,7 @@ def _write_json_spec(*, ctx, project_name, inputs, infos):
 """.format(
         bazel_path = ctx.attr.bazel_path,
         extra_files = json.encode([
-            file_path(file)
+            file_path_to_dto(file_path(file))
             for file in extra_files.to_list()
         ]),
         label = ctx.label,
@@ -182,7 +182,10 @@ def _xcodeproj_impl(ctx):
         for dep in ctx.attr.targets
         if XcodeProjInfo in dep
     ]
-    inputs = input_files.merge(transitive_infos = infos)
+    inputs = input_files.merge(transitive_infos = [
+        (None, info)
+        for info in infos
+    ])
 
     spec_file = _write_json_spec(
         ctx = ctx,

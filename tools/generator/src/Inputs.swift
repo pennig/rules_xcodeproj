@@ -2,15 +2,18 @@ struct Inputs: Equatable {
     let srcs: Set<FilePath>
     let nonArcSrcs: Set<FilePath>
     let hdrs: Set<FilePath>
+    let resources: Set<FilePath>
 
     init(
         srcs: Set<FilePath> = [],
         nonArcSrcs: Set<FilePath> = [],
-        hdrs: Set<FilePath> = []
+        hdrs: Set<FilePath> = [],
+        resources: Set<FilePath> = []
     ) {
         self.srcs = srcs
         self.nonArcSrcs = nonArcSrcs
         self.hdrs = hdrs
+        self.resources = resources
     }
 }
 
@@ -19,6 +22,7 @@ extension Inputs {
         return srcs
             .union(nonArcSrcs)
             .union(hdrs)
+            .union(resources)
     }
 }
 
@@ -29,6 +33,7 @@ extension Inputs: Decodable {
         case srcs
         case nonArcSrcs
         case hdrs
+        case resources
     }
 
     init(from decoder: Decoder) throws {
@@ -37,6 +42,7 @@ extension Inputs: Decodable {
         srcs = try container.decodeFilePaths(.srcs)
         nonArcSrcs = try container.decodeFilePaths(.nonArcSrcs)
         hdrs = try container.decodeFilePaths(.hdrs)
+        resources = try container.decodeFilePaths(.resources)
     }
 }
 

@@ -1,8 +1,8 @@
 """Functions to deal with target input files."""
 
 load("@bazel_skylib//lib:paths.bzl", "paths")
-load(":collections.bzl", "flatten")
-load(":files.bzl", "file_path")
+load(":collections.bzl", "flatten", "uniq")
+load(":files.bzl", "file_path", "file_path_to_dto", "join_paths_ignoring_empty")
 load(":logging.bzl", "warn")
 load(":providers.bzl", "InputFileAttributesInfo")
 
@@ -38,6 +38,13 @@ def _collect_transitive_extra_files(info):
         transitive.append(inputs.hdrs)
     return transitive
 
+def _should_include_transitive_resources(*, attr, info, attrs_info):
+    if info.target:
+        return False
+    if not attrs_info:
+        return False
+    return attr in attrs_info.resources
+
 def _should_ignore_attr(attr, *, excluded_attrs):
     return (
         attr in excluded_attrs or
@@ -45,6 +52,21 @@ def _should_ignore_attr(attr, *, excluded_attrs):
         attr.startswith("_") or
         # These are actually Starklark methods, so ignore them
         attr in ("to_json", "to_proto")
+    )
+
+def _folder_resource_file_path(*, ctx, target, file):
+    package_dir = paths.dirname(ctx.build_file_path)
+    path = file.path
+    if not path.startswith(package_dir):
+        fail("""\
+Structured resources must come from the same package as the target. {} is not \
+in {}""".format(file, target.label))
+    relative_path = path[len(package_dir) + 1:]
+    relative_folder, _, _ = relative_path.partition("/")
+    return file_path(
+        file,
+        path = join_paths_ignoring_empty(package_dir, relative_folder),
+        is_folder = True,
     )
 
 # API
@@ -75,6 +97,10 @@ def _collect(
             `hdrs`-like attributes.
         *   `non_arc_srcs`: A `depset` of `File`s that are inputs to
             `target`'s `non_arc_srcs`-like attributes.
+        *   `resources`: A `depset` of `File`s that are inputs to `target`'s
+            `resources`-like attributes.
+        *   `structured_resources`: A `depset` of `FilePath`s that are inputs to
+            `target`'s `srtructured_resources`-like attributes.
         *   `generated`: A `depset` of generated `File`s that are inputs to
             `target` or its transitive dependencies.
         *   `extra_files`: A `depset` of `File`s that are inputs to `target`
@@ -88,6 +114,8 @@ def _collect(
     srcs = []
     non_arc_srcs = []
     hdrs = []
+    resources = []
+    folder_resources = []
     generated = []
     extra_files = []
 
@@ -103,6 +131,14 @@ def _collect(
                 non_arc_srcs.append(file)
             elif attr in attrs_info.hdrs:
                 hdrs.append(file)
+            elif attr in attrs_info.resources:
+                resources.append(file)
+            elif attr in attrs_info.structured_resources:
+                folder_resources.append(_folder_resource_file_path(
+                    ctx = ctx,
+                    target = target,
+                    file = file,
+                ))
             elif file not in output_files:
                 extra_files.append(file)
 
@@ -141,18 +177,46 @@ https://github.com/buildbuddy-io/rules_xcodeproj/issues/new?template=bug.md
     extra_files.extend(additional_files)
 
     return struct(
+        _attrs_info = attrs_info,
         srcs = depset(srcs),
         non_arc_srcs = depset(non_arc_srcs),
         hdrs = depset(hdrs),
+        resources = depset(
+            resources,
+            transitive = [
+                info.inputs.resources
+                for attr, info in transitive_infos
+                if _should_include_transitive_resources(
+                    attr = attr,
+                    info = info,
+                    attrs_info = attrs_info,
+                )
+            ],
+        ),
+        folder_resources = depset(
+            uniq(folder_resources),
+            transitive = [
+                info.inputs.folder_resources
+                for attr, info in transitive_infos
+                if _should_include_transitive_resources(
+                    attr = attr,
+                    info = info,
+                    attrs_info = attrs_info,
+                )
+            ],
+        ),
         generated = depset(
             generated,
-            transitive = [info.inputs.generated for info in transitive_infos],
+            transitive = [
+                info.inputs.generated
+                for _, info in transitive_infos
+            ],
         ),
         extra_files = depset(
             extra_files,
             transitive = flatten([
                 _collect_transitive_extra_files(info)
-                for info in transitive_infos
+                for _, info in transitive_infos
             ]),
         ),
     )
@@ -176,16 +240,38 @@ def _merge(inputs = None, *, transitive_infos):
         srcs = inputs.srcs if inputs else depset(),
         non_arc_srcs = inputs.non_arc_srcs if inputs else depset(),
         hdrs = inputs.hdrs if inputs else depset(),
+        resources = depset(
+            transitive = ([inputs.resources] if inputs else []) + [
+                info.inputs.resources
+                for attr, info in transitive_infos
+                if _should_include_transitive_resources(
+                    attr = attr,
+                    info = info,
+                    attrs_info = inputs._attrs_info if inputs else None,
+                )
+            ],
+        ),
+        folder_resources = depset(
+            transitive = ([inputs.folder_resources] if inputs else []) + [
+                info.inputs.folder_resources
+                for attr, info in transitive_infos
+                if _should_include_transitive_resources(
+                    attr = attr,
+                    info = info,
+                    attrs_info = inputs._attrs_info if inputs else None,
+                )
+            ],
+        ),
         generated = depset(
             transitive = ([inputs.generated] if inputs else []) + [
                 info.inputs.generated
-                for info in transitive_infos
+                for _, info in transitive_infos
             ],
         ),
         extra_files = depset(
             transitive = ([inputs.extra_files] if inputs else []) + [
                 info.inputs.extra_files
-                for info in transitive_infos
+                for _, info in transitive_infos
             ],
         ),
     )
@@ -202,17 +288,31 @@ def _to_dto(inputs):
         *   `srcs`: A `list` of `FilePath`s for `srcs`.
         *   `non_arc_srcs`: A `list` of `FilePath`s for `non_arc_srcs`.
         *   `hdrs`: A `list` of `FilePath`s for `hdrs`.
+        *   `resources`: A `list` of `FilePath`s for `resources`.
+        *   `folder_resources`: A `list` of `FilePath`s for `folder_resources`.
     """
     ret = {}
 
-    def _process_attr(attr):
+    def _process_file_attr(attr):
         value = getattr(inputs, attr)
         if value:
-            ret[attr] = [file_path(file) for file in value.to_list()]
+            ret[attr] = [
+                file_path_to_dto(file_path(file))
+                for file in value.to_list()
+            ]
 
-    _process_attr("srcs")
-    _process_attr("non_arc_srcs")
-    _process_attr("hdrs")
+    _process_file_attr("srcs")
+    _process_file_attr("non_arc_srcs")
+    _process_file_attr("hdrs")
+
+    if inputs.resources or inputs.folder_resources:
+        ret["resources"] = [
+            file_path_to_dto(file_path(file))
+            for file in inputs.resources.to_list()
+        ] + [
+            file_path_to_dto(fp)
+            for fp in inputs.folder_resources.to_list()
+        ]
 
     return ret
 
